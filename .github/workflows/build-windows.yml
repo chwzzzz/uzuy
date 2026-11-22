@@ -39,7 +39,7 @@ jobs:
           $t = $t.Replace("mingw32/bin/pkg-config.exe", "mingw64/bin/pkg-config.exe")
           Set-Content $f $t -NoNewline
           echo "patched pkgconf acquisition"
-      - name: Build pkgconf tool and set PKG_CONFIG
+      - name: Build local pkgconf tool and stub vcpkg PKGCONFIG
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
@@ -51,8 +51,15 @@ jobs:
           Pop-Location
           $exe = Get-ChildItem "$toolDir/packages/pkgconf_x64-windows" -Recurse -Filter "pkgconf.exe" | Select-Object -First 1
           if (-not $exe) { throw "pkgconf.exe not found" }
-          echo "PKG_CONFIG=$($exe.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          & $exe.FullName --version
+          New-Item -ItemType Directory -Force "C:/vcpkg-pkgconf" | Out-Null
+          Copy-Item -Force ((Split-Path $exe.FullName -Parent) + "/*") "C:/vcpkg-pkgconf/"
+          $stub = @'
+set(PKGCONFIG "C:/vcpkg-pkgconf/pkgconf.exe" CACHE INTERNAL "")
+set(PKGCONFIG "${PKGCONFIG}" PARENT_SCOPE)
+return()
+'@
+          Set-Content "externals/vcpkg/scripts/cmake/vcpkg_find_acquire_program(PKGCONFIG).cmake" $stub -NoNewline
+          & "C:/vcpkg-pkgconf/pkgconf.exe" --version
       - name: Configure
         env:
           CC: cl.exe
