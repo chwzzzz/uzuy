@@ -55,7 +55,7 @@ jobs:
           Copy-Item -Force ((Split-Path $exe.FullName -Parent) + "/*") "C:/vcpkg-pkgconf/"
           $stub = @(
             'set(program_name "pkg-config")',
-            'set(search_names "pkg-config.exe")',
+            'set(search_names "pkgconf.exe")',
             'list(APPEND paths_to_search "C:/vcpkg-pkgconf")',
             'set(version_command "--version")',
             'set(program_version "3.0.8")'
