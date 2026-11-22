@@ -29,6 +29,16 @@ jobs:
         run: .\.ci\scripts\windows\install-vulkan-sdk.ps1
       - name: Set up MSVC
         uses: ilammy/msvc-dev-cmd@v1
+      - name: Patch vcpkg pkgconf acquisition
+        shell: pwsh
+        run: |
+          $f = "externals/vcpkg/scripts/cmake/vcpkg_find_acquire_program(PKGCONFIG).cmake"
+          $t = Get-Content $f -Raw
+          $t = $t.Replace("https://mirror.msys2.org/mingw/mingw32/mingw-w64-i686-pkgconf-1~1.8.0-2-any.pkg.tar.zst", "https://repo.msys2.org/mingw/mingw64/mingw-w64-x86_64-pkgconf-1~3.0.8-1-any.pkg.tar.zst")
+          $t = $t.Replace("e5217d9c55ede4c15706b4873761cc6e987eabc1308120a3e8406571ae2993907f3776f2b2bba18d7aaec80ef97227696058cedc1b67a773530dc1e6077b95e6", "25f58ef6ab1f45d0f3b503d4e8008ef8e79a9716492b57c3ed3cdbe481d421bd2a1d9b210169c8d5a88cc05f496c91d5a2f8b6671d4cc9b0810150a384f237a8")
+          $t = $t.Replace("mingw32/bin/pkg-config.exe", "mingw64/bin/pkg-config.exe")
+          Set-Content $f $t -NoNewline
+          echo "patched pkgconf acquisition"
       - name: Configure
         env:
           CC: cl.exe
