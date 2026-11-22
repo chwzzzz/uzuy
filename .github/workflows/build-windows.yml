@@ -54,9 +54,11 @@ jobs:
           New-Item -ItemType Directory -Force "C:/vcpkg-pkgconf" | Out-Null
           Copy-Item -Force ((Split-Path $exe.FullName -Parent) + "/*") "C:/vcpkg-pkgconf/"
           $stub = @(
-            'set(PKGCONFIG "C:/vcpkg-pkgconf/pkgconf.exe" CACHE INTERNAL "")',
-            'set(PKGCONFIG "${PKGCONFIG}" PARENT_SCOPE)',
-            'return()'
+            'set(program_name "pkg-config")',
+            'set(search_names "pkg-config.exe")',
+            'list(APPEND paths_to_search "C:/vcpkg-pkgconf")',
+            'set(version_command "--version")',
+            'set(program_version "3.0.8")'
           ) -join [Environment]::NewLine
           Set-Content "externals/vcpkg/scripts/cmake/vcpkg_find_acquire_program(PKGCONFIG).cmake" $stub
           & "C:/vcpkg-pkgconf/pkgconf.exe" --version
