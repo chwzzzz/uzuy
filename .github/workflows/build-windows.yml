@@ -57,8 +57,8 @@ jobs:
             'set(PKGCONFIG "C:/vcpkg-pkgconf/pkgconf.exe" CACHE INTERNAL "")',
             'set(PKGCONFIG "${PKGCONFIG}" PARENT_SCOPE)',
             'return()'
-          )
-          Set-Content "externals/vcpkg/scripts/cmake/vcpkg_find_acquire_program(PKGCONFIG).cmake" $stub -NoNewline
+          ) -join [Environment]::NewLine
+          Set-Content "externals/vcpkg/scripts/cmake/vcpkg_find_acquire_program(PKGCONFIG).cmake" $stub
           & "C:/vcpkg-pkgconf/pkgconf.exe" --version
       - name: Configure
         env:
