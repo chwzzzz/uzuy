@@ -53,11 +53,11 @@ jobs:
           if (-not $exe) { throw "pkgconf.exe not found" }
           New-Item -ItemType Directory -Force "C:/vcpkg-pkgconf" | Out-Null
           Copy-Item -Force ((Split-Path $exe.FullName -Parent) + "/*") "C:/vcpkg-pkgconf/"
-          $stub = @'
-          set(PKGCONFIG "C:/vcpkg-pkgconf/pkgconf.exe" CACHE INTERNAL "")
-          set(PKGCONFIG "${PKGCONFIG}" PARENT_SCOPE)
-          return()
-'@
+          $stub = @(
+            'set(PKGCONFIG "C:/vcpkg-pkgconf/pkgconf.exe" CACHE INTERNAL "")',
+            'set(PKGCONFIG "${PKGCONFIG}" PARENT_SCOPE)',
+            'return()'
+          )
           Set-Content "externals/vcpkg/scripts/cmake/vcpkg_find_acquire_program(PKGCONFIG).cmake" $stub -NoNewline
           & "C:/vcpkg-pkgconf/pkgconf.exe" --version
       - name: Configure
