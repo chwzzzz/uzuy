@@ -43,11 +43,13 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
-          Push-Location externals/vcpkg
+          $toolDir = Join-Path $env:RUNNER_TEMP "vcpkg-tool"
+          Copy-Item -Recurse -Force "externals/vcpkg" $toolDir
+          Push-Location $toolDir
           .\bootstrap-vcpkg.bat -disableMetrics
           .\vcpkg.exe install pkgconf:x64-windows
           Pop-Location
-          $exe = Get-ChildItem "externals/vcpkg/packages/pkgconf_x64-windows" -Recurse -Filter "pkgconf.exe" | Select-Object -First 1
+          $exe = Get-ChildItem "$toolDir/packages/pkgconf_x64-windows" -Recurse -Filter "pkgconf.exe" | Select-Object -First 1
           if (-not $exe) { throw "pkgconf.exe not found" }
           echo "PKG_CONFIG=$($exe.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           & $exe.FullName --version
